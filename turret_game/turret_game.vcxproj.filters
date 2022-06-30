@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="essential header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="turret_game">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="turret_game\StartMenu">
+      <UniqueIdentifier>{5deb29bb-76da-4000-8941-b75eb46c778a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turret_game\InGameWindow">
+      <UniqueIdentifier>{bd6636fa-a58c-4515-a3e2-dab97e70680c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turret_game\CloseMenu">
+      <UniqueIdentifier>{fe6ed73d-757e-405b-b709-af9cb1ac055f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>essential header</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>essential header</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>essential header</Filter>
+    </ClInclude>
+    <ClInclude Include="turret_game.h">
+      <Filter>essential header</Filter>
+    </ClInclude>
+    <ClInclude Include="StartMenu.h">
+      <Filter>turret_game\StartMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="CloseMenu.h">
+      <Filter>turret_game\CloseMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameWindow.h">
+      <Filter>turret_game\InGameWindow</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="turret_game.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="turret_game.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="turret_game.cpp">
+      <Filter>turret_game</Filter>
+    </ClCompile>
+    <ClCompile Include="StartMenu.cpp">
+      <Filter>turret_game\StartMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="CloseMenu.cpp">
+      <Filter>turret_game\CloseMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameWindow.cpp">
+      <Filter>turret_game\InGameWindow</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
