@@ -12,7 +12,6 @@
 #define IDI_SMALL                       108
 #define IDC_TURRETGAME                  109
 #define IDR_MAINFRAME                   128
-//#define IDD_DIALOG1                     130
 #define IDD_LOGIN_BOX                   130
 #define IDCANCEL                        1000
 #define IDC_LOGIN_TEXT                  1001
@@ -21,6 +20,7 @@
 #define IDC_PASSWORD_INFO               1004
 #define IDC_LOGIN_BUTTON                1005
 #define IDC_PASSWORD_ERROR_TEXT         1006
+#define IDC_LOGIN_ERROR                 1007
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -30,7 +30,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1007
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

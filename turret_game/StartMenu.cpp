@@ -32,16 +32,22 @@ bool CALLBACK LoginMenu(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
                 if (fin.is_open())
                 {
 
-                    getline(fin, saved_ID);
+                   
                     while(saved_ID != ID);
                     {
                         getline(fin, saved_ID);
+                        if (saved_ID == ID)
+                        {
+                            //화면이 꺼지고 게임시작
+                            break;
+                        }
                         getline(fin, saved_ID);
                         if (fin.peek()==EOF)
                         {
-
-                            break;
+                            SetDlgItemText(hWnd, IDC_LOGIN_ERROR, _T("해당 아이디는 없습니다! 다시 입력해주세요!"));
+                            fin.seekg(0, ios::beg);
                         }
+
                     }
                     
 
