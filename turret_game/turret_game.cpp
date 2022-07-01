@@ -5,7 +5,8 @@
 #include "turret_game.h"
 #include <iostream>
 #include "StartMenu.h"
-
+#include <vector>
+#include "InGameWindow.h"
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -14,9 +15,29 @@ WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
 
+std::vector<Game_Object_Manager*> CannonBall_Wall;
 
+std::vector<Game_Object_Manager*> Arrow;
 
 void Update();
+int Run_Frame_Max = 0;
+int Run_Frame_Min = 0;
+int curFrame = Run_Frame_Min;
+
+void UpdateFrame(HWND hWnd)
+{
+    curFrame++;
+    if (curFrame > Run_Frame_Max)
+    {
+        curFrame = Run_Frame_Min;
+    }
+}
+void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+    UpdateFrame(hWnd);
+
+    InvalidateRect(hWnd, NULL, FALSE);
+}
 
 
 
@@ -54,6 +75,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     // 기본 메시지 루프입니다:
+    /*
     while (GetMessage(&msg, nullptr, 0, 0))
     {
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
@@ -62,7 +84,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
-
+    */
     while (true)
     {
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -167,8 +189,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DialogBox(hInst, MAKEINTRESOURCE(IDD_LOGIN_BOX), hWnd, LoginMenu);
         }
         
-
-
+        SetTimer(hWnd, 1, 100, TimerProc);
     }
     case WM_COMMAND:
         {
@@ -187,12 +208,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+
+
+
+
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
 
-
+            RECT Clientrc;
+            GetClientRect(hWnd, &Clientrc);
 
 
 

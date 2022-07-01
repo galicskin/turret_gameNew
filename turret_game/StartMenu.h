@@ -12,7 +12,7 @@ struct UserInfo
 };
 
 
-bool CALLBACK LoginMenu(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK LoginMenu(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 
 
 
