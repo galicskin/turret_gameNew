@@ -7,6 +7,9 @@
 #pragma comment(lib,"Gdiplus.lib")
 using namespace Gdiplus;
 
+
+
+
 struct Vector
 {
 	double x, y;
@@ -55,10 +58,6 @@ struct Vector
 
 enum shape { Nothing=0 , Arrow, CannonBall ,Cannon, Wall};
 
-double projection(Vector a, Vector b)
-{
-	return (a * b) / b.scalar();
-}
 
 class Game_Object_Manager
 {
@@ -68,10 +67,11 @@ protected:
 	double Width;
 	double Height;
 	int What;
+	
 public:
 	Game_Object_Manager() { Pos={ 0, 0 }, Velocity = { 0, 0 }, Width = 0, Height = 0, What = shape::Nothing;}
 	Game_Object_Manager(double x, double y, double xV, double yV) :Game_Object_Manager() { Pos.x = x, Pos.y = y, Velocity.x = xV, Velocity.y = yV ; }
-	~Game_Object_Manager() {};
+	virtual ~Game_Object_Manager() {};
 	
 	Vector getPos() const { return Pos; }
 	void setPos(double x,double y) { Pos.x = x,Pos.y=y; }
@@ -87,27 +87,23 @@ public:
 	double get_VelocitySize()const { return sqrt(pow(Velocity.x, 2) + pow(Velocity.y, 2)); } ;
 	virtual bool is_collide(Game_Object_Manager& Ob) { return false; };
 	//virtual void collide( Game_Object_Manager& Ob) {};
-	virtual void Draw() {};
+	virtual void Draw(HDC hdc, Image &pImg) {};
 };
 
 class Enemy_Missile : public Game_Object_Manager
 {
 private:
 	int damage;
-
+	
 public:
 	Enemy_Missile() { damage = 1,What=shape:: Arrow; }
-	Enemy_Missile(Image*pImg): Enemy_Missile() {
-		set_Width(pImg->GetWidth());
-		set_Height(pImg->GetHeight());
-	}
-	~Enemy_Missile() {}
+	virtual ~Enemy_Missile() {}
 
 	
 
 	bool is_collide(Game_Object_Manager& OB, Image* pImg); //충돌여부
 	
-	void Draw(HDC hdc , Image img);
+	void Draw(HDC hdc, Image &pImg);
 };
 
 class Friend_Missile :public Game_Object_Manager
@@ -116,13 +112,10 @@ private:
 	
 public:
 	Friend_Missile() { What = shape::CannonBall; }
-	Friend_Missile(Image* pImg) :Friend_Missile() {
-		set_Width(pImg->GetWidth());
-		set_Height(pImg->GetHeight());
-	}
-	~Friend_Missile() {}
+	
+	virtual ~Friend_Missile() {}
 
-	void Draw(HDC hdc, Image img);
+	void Draw(HDC hdc, Image &pImg);
 
 };
 
@@ -132,26 +125,25 @@ private:
 	int Life;
 public:
 	LifeBlock() { Life = 3, What = shape::Wall; }
-	LifeBlock(Image* pImg) :LifeBlock() {
-		set_Width(pImg->GetWidth());
-		set_Height(pImg->GetHeight());
-	}
-	~LifeBlock() {}
+	
+	
+	virtual ~LifeBlock() {}
 
 
-	void Draw(HDC hdc, Image img);
+	void Draw(HDC hdc, Image &pImg);
 
 };
 
-class Cannon
+class cannon
 {
 private:
 	Vector Cannon_Port;
 public:
-	Cannon() { Cannon_Port = { 0,0 }; }
-	Cannon(Vector t) { Cannon_Port = t; }
-	~Cannon() {}
+	cannon() { Cannon_Port = { 0,0 }; }
+	cannon(Vector t) { Cannon_Port = t; }
+	~cannon() {}
 
 	void Shot(Friend_Missile& F);
-	void Draw(HDC hdc);
+	void Draw(HDC hdc, Image &img,RECT Clientrc);
 };
+

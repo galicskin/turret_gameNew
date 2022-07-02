@@ -17,7 +17,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름�
 
 std::vector<Game_Object_Manager*> CannonBall_Wall;
 
-std::vector<Game_Object_Manager*> Arrow;
+std::vector<Game_Object_Manager*> arrow;
 
 void Update();
 int Run_Frame_Max = 0;
@@ -179,16 +179,35 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static bool login = false;
+   // static bool login = false;
     switch (message)
     {
     case WM_CREATE:
     {
-        if (login == false)
-        {
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_LOGIN_BOX), hWnd, LoginMenu);
-        }
         
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_LOGIN_BOX), hWnd, LoginMenu);
+
+            Image* temp=nullptr;
+           // temp= Image::FromFile((WCHAR*)L"images/정사각형.png");
+
+            //Image* cannon((WCHAR*)L"images/cannon.png");
+            //Image* cannonBall((WCHAR*)L"images/검은원.png");
+            //Image* Arrows((WCHAR*)L"images/적 미사일.png");
+            //Image* block((WCHAR*)L"images/정사각형.png");
+
+            for (int i = 0; i < 5; ++i)
+            {
+               temp = Image::FromFile((WCHAR*)L"images/정사각형.png");
+               Game_Object_Manager* wall=nullptr;
+               wall = new LifeBlock;
+               
+               wall->setPos(wall->getPos().x + 5*i, 100 );
+               CannonBall_Wall.push_back(wall);
+            }
+
+            cannon turret({ 0,-1 });
+
+
         SetTimer(hWnd, 1, 100, TimerProc);
     }
     case WM_COMMAND:
@@ -220,8 +239,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             RECT Clientrc;
             GetClientRect(hWnd, &Clientrc);
 
+            
+            Image temp((WCHAR*)L"images/정사각형.png");
+          
+            for (auto iter = CannonBall_Wall.begin(); iter != CannonBall_Wall.end(); ++iter)
+            {
+                (*iter)->Draw(hdc, temp);
+            }
 
 
+              
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 
 
@@ -233,6 +260,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
+        KillTimer(hWnd,1);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);

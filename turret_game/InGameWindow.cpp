@@ -1,5 +1,12 @@
 #include "InGameWindow.h"
 
+
+double Projection(Vector a, Vector b)
+{
+	return ((a * b) / b.scalar());
+}
+
+
 bool Enemy_Missile::is_collide(Game_Object_Manager& OB, Image* pImg)
 {
 	Vector endpoint(Pos.x, Pos.y + (Height / 2));
@@ -12,11 +19,11 @@ bool Enemy_Missile::is_collide(Game_Object_Manager& OB, Image* pImg)
 	{
 		if (OB.getVelocity().x < 0)
 		{
-			return (projection(endpoint - OB.getPos(), L_Top) <= (OB.get_Width()/2));
+			return (Projection(endpoint - OB.getPos(), L_Top) <= (OB.get_Width()/2));
 		}
 		else if (OB.getVelocity().x > 0)
 		{
-			return (projection(endpoint - OB.getPos(), R_Top) >= (OB.get_Width() / 2));
+			return (Projection(endpoint - OB.getPos(), R_Top) >= (OB.get_Width() / 2));
 		}
 		else
 		{
@@ -34,44 +41,53 @@ bool Enemy_Missile::is_collide(Game_Object_Manager& OB, Image* pImg)
 	
 }
 
-void Enemy_Missile::Draw(HDC hdc, Image img)
+void Enemy_Missile::Draw(HDC hdc, Image &pImg)
 {
 
 	Graphics graphics(hdc);
 	ImageAttributes imgAttr;// 알파값 관련
-	int w = img.GetWidth();
-	int h = img.GetHeight();
+	int w = pImg.GetWidth();
+	int h = pImg.GetHeight();
 	imgAttr.SetColorKey(Color(245, 0, 245), Color(255, 10, 255));
-	graphics.DrawImage(&img, Rect(Pos.x, Pos.y, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
+	graphics.DrawImage(&pImg, Rect(Pos.x, Pos.y, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
 }
 
-void Friend_Missile::Draw(HDC hdc, Image img)
+void Friend_Missile::Draw(HDC hdc, Image &pImg)
 {
 	Graphics graphics(hdc);
 	ImageAttributes imgAttr;// 알파값 관련
-	int w = img.GetWidth();
-	int h = img.GetHeight();
+	int w = pImg.GetWidth();
+	int h = pImg.GetHeight();
 	imgAttr.SetColorKey(Color(245, 0, 245), Color(255, 10, 255));
-	graphics.DrawImage(&img, Rect(Pos.x, Pos.y, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
+	graphics.DrawImage(&pImg, Rect(Pos.x, Pos.y, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
 }
 
-void LifeBlock::Draw(HDC hdc, Image img)
+void LifeBlock::Draw(HDC hdc, Image &pImg)
 {
 	Graphics graphics(hdc);
 	ImageAttributes imgAttr;// 알파값 관련
-	int w = img.GetWidth();
-	int h = img.GetHeight();
+	int w = pImg.GetWidth();
+	int h = pImg.GetHeight();
 	imgAttr.SetColorKey(Color(245, 0, 245), Color(255, 10, 255));
-	graphics.DrawImage(&img, Rect(Pos.x, Pos.y, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
+	graphics.DrawImage(&pImg, Rect(Pos.x, Pos.y, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
 }
 
-void Cannon::Shot(Friend_Missile& F)
+void cannon::Shot(Friend_Missile& F)
 {
 	F.setVelocity(Cannon_Port.x, Cannon_Port.y);
 }
 
-void Cannon::Draw(HDC hdc,RECT Clientrc)
+void cannon::Draw(HDC hdc, Image &img, RECT Clientrc)
 {
-
-	Ellipse(hdc, ((Clientrc.left)/2)-20, , , , )
+	Graphics graphics(hdc);
+	ImageAttributes imgAttr;// 알파값 관련
+	int w = img.GetWidth();
+	int h = img.GetHeight();
+	imgAttr.SetColorKey(Color(245, 0, 245), Color(255, 10, 255));
+	double cannon_locationx = (Clientrc.right - Clientrc.left)/2 ; 
+	double cannon_locationy = Clientrc.bottom;
+	graphics.DrawImage(&img, Rect(cannon_locationx, cannon_locationy, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
+	
 }
+
+
