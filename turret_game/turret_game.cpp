@@ -9,6 +9,23 @@
 #include "InGameWindow.h"
 #define MAX_LOADSTRING 100
 
+using namespace Gdiplus;
+// Gdi
+ULONG_PTR g_GdiToken;
+void Gdi_Init();
+void Gdi_End();
+//더블버퍼
+HBITMAP hBackImage;
+BITMAP bitBack;
+
+HBITMAP hSigongImage;
+BITMAP bitSigong;
+
+HBITMAP hAniImage;
+BITMAP bitAni;
+
+HBITMAP hDoubleBufferImage;
+void doublebuffer(HWND hWnd, HDC hdc);
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -85,6 +102,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
     */
+
+    Gdi_Init();
     while (true)
     {
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -105,7 +124,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
 
-
+    Gdi_End();
     return (int)msg.wParam;
 }
 
@@ -177,9 +196,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+    static RECT Clientrc;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
    // static bool login = false;
+    GetClientRect(hWnd, &Clientrc);
     switch (message)
     {
     case WM_CREATE:
@@ -201,7 +222,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                Game_Object_Manager* wall=nullptr;
                wall = new LifeBlock;
                
-               wall->setPos(wall->getPos().x + 5*i, 100 );
+               wall->setPos(100 + 100*i, 100 );
                CannonBall_Wall.push_back(wall);
             }
 
@@ -236,10 +257,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
 
-            RECT Clientrc;
-            GetClientRect(hWnd, &Clientrc);
+          
 
-            
+            doublebuffer(hWnd, hdc);
+
+
+
+            /*
             Image temp((WCHAR*)L"images/정사각형.png");
           
             for (auto iter = CannonBall_Wall.begin(); iter != CannonBall_Wall.end(); ++iter)
@@ -247,7 +271,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 (*iter)->Draw(hdc, temp);
             }
 
-
+            */
               
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 
@@ -320,8 +344,45 @@ void Update()
 }
 
 
+void Gdi_Init()
+{
+    GdiplusStartupInput gpsi;
+    GdiplusStartup(&g_GdiToken, &gpsi, NULL);
+}
+
+void Gdi_Draw(HDC hdc)
+{
+
+}
+
+void Gdi_End()
+{
+    GdiplusShutdown(g_GdiToken);
+}
+
+void doublebuffer(HWND hWnd, HDC hdc)
+{
+   
+
+    HDC hMemDC;  //화면과 같은 형태의 메모리
+    HBITMAP hOldBitmap; //이미지 라고 생각하면 편함
+   
+    HDC hMemDC2;
+    HBITMAP hOldBitmap2;
+
+    hMemDC = CreateCompatibleDC(hdc); //hdc메모리 생성(기존)
+    Graphics graphics(hMemDC);
 
 
 
 
+    //for background
+
+    hMemDC2 = CreateCompatibleDC(hMemDC);  //기존 DC에서 DC2(hdc메모리) 생성 ==(도화지 생성)
+    Graphics graphics2(hMemDC2);
+
+   
+
+
+}
 

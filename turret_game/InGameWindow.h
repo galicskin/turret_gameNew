@@ -10,6 +10,7 @@ using namespace Gdiplus;
 
 
 
+
 struct Vector
 {
 	double x, y;
@@ -146,4 +147,7 @@ public:
 	void Shot(Friend_Missile& F);
 	void Draw(HDC hdc, Image &img,RECT Clientrc);
 };
+
+//다른 gdi 함수
+
 
