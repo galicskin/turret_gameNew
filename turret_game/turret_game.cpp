@@ -459,7 +459,7 @@ void Update()
         end= clock();
         if (end - start > 1000)
         {
-        settingCannonball(CannonBall_Wall, turret,10,Clientrc);
+        settingCannonball(CannonBall_Wall, turret,20,Clientrc);
         start = clock();
         }
     }
