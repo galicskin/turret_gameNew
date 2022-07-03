@@ -5,12 +5,14 @@ double Projection(Vector a, Vector b)
 {
 	return ((a * b) / b.scalar());
 }
-void Rotate(Vector &a, double theta) 
+
+Vector Rotate(double theta) 
 {
-	
-	double temp = a.x;
-	a.x = a.x * cosf(theta) - a.y * sinf(theta);
-	a.y = a.x * sinf(theta) + a.y * cosf(theta);
+	Vector V(0, -1);
+	double temp = V.x;
+	V.x = V.x * cosf(theta) - V.y * sinf(theta);
+	V.y = V.x * sinf(theta) + V.y * cosf(theta);
+	return V;
 }
 
 
@@ -21,33 +23,46 @@ void Enemy_Missile::down()
 	setPos(dx,dy);
 }
 
-bool Enemy_Missile::is_collide(Game_Object_Manager& OB, Image* pImg)
-{
-	Vector endpoint(Pos.x, Pos.y + (Height / 2));
-	Vector R_Top(-1 / sqrt(2), -1 / sqrt(2));
-	Vector L_Top(1 / sqrt(2), -1 / sqrt(2));
 
-	switch (What)
+
+bool Enemy_Missile::is_collide(Game_Object_Manager& OB)
+{
+	Vector arrowpoint(Pos.x + Width/2, Pos.y + Height/2);
+
+	
+
+	switch (OB.getWhat())
 	{
 	case shape::CannonBall :
 	{
-		if (OB.getVelocity().x < 0)
+		Vector ball_center(OB.getPos().x+OB.get_Width()/2,OB.getPos().y+OB.get_Height()/2);
+		
+		if ((Pos.x < OB.getPos().x) && (Pos.x + Width > OB.getPos().x))
 		{
-			return (Projection(endpoint - OB.getPos(), L_Top) <= (OB.get_Width()/2));
+			if ((Pos.y < OB.getPos().y) && (Pos.y + Height > OB.getPos().y))
+			{
+				return true;
+			}
+			return false;
 		}
-		else if (OB.getVelocity().x > 0)
-		{
-			return (Projection(endpoint - OB.getPos(), R_Top) >= (OB.get_Width() / 2));
-		}
-		else
-		{
-			return (OB.getPos().y - (OB.get_Width()/2) < endpoint.y);
-		}
+		return false;
 		break;
 	}
 	case Wall:
 	{
-		return (OB.getPos().y - (OB.get_Width() / 2) < endpoint.y);
+		if (OB.getPos().x + 80 > Pos.x && OB.getPos().x < Pos.x)
+		{
+			return (OB.getPos().y  < Pos.y+Height);
+		}
+		else
+		{
+			return false;
+		}
+		break;
+	}
+	default :
+	{
+		return false;
 		break;
 	}
 	}
@@ -63,7 +78,20 @@ void Enemy_Missile::Draw(HDC hdc, Image &pImg)
 	int w = pImg.GetWidth();
 	int h = pImg.GetHeight();
 	imgAttr.SetColorKey(Color(245, 0, 245), Color(255, 10, 255));
-	graphics.DrawImage(&pImg, Rect(Pos.x, Pos.y, w/15, h/15), 0, 0, w, h, UnitPixel, &imgAttr);
+	graphics.DrawImage(&pImg, Rect(Pos.x, Pos.y, w/5, h/5), 0, 0, w, h, UnitPixel, &imgAttr);
+
+	set_Width(w / 5);
+	set_Height(h / 5);
+
+}
+
+
+
+Friend_Missile::Friend_Missile(Vector Pos)
+{
+	this->Pos.x = Pos.x;
+	this->Pos.y = Pos.y;
+	What = shape::CannonBall;
 }
 
 void Friend_Missile::Draw(HDC hdc, Image &pImg)
@@ -73,24 +101,58 @@ void Friend_Missile::Draw(HDC hdc, Image &pImg)
 	int w = pImg.GetWidth();
 	int h = pImg.GetHeight();
 	imgAttr.SetColorKey(Color(245, 0, 245), Color(255, 10, 255));
-	graphics.DrawImage(&pImg, Rect(Pos.x, Pos.y, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
+	graphics.DrawImage(&pImg, Rect(Pos.x, Pos.y, w/25, h/25), 0, 0, w, h, UnitPixel, &imgAttr);
+
+
+	set_Width(w / 25);
+	set_Height(h / 25);
+
 }
 
+
+void LifeBlock::Lifedown()
+{
+	if (Life > 0)
+	{
+		Life--;
+	}
+	else
+	{
+		destroy = true;
+	}
+}
 
 void LifeBlock::Draw(HDC hdc, Image &pImg)
 {
 	Graphics graphics(hdc);
+
+
+	REAL transparency = 0.3f*Life;
 	ImageAttributes imgAttr;// 알파값 관련
+	ColorMatrix colorMatrix =
+	{
+			1.0f,0.0f,0.0f,0.0f,0.0f,   // r
+			0.0f,1.0f,0.0f,0.0f,0.0f,   // g
+			0.0f,0.0f,1.0f,0.0f,0.0f,   // b
+			0.0f,0.0f,0.0f,transparency,0.0f,  //단위행렬중 알파값: 4,4 부분
+			0.0f,0.0f,0.0f,0.0f,1.0f, //단위행렬쪽 말고 나머지 4부분은 밝기관련
+	};
+	imgAttr.SetColorMatrix(&colorMatrix);
+
 	int w = pImg.GetWidth();
 	int h = pImg.GetHeight();
 	imgAttr.SetColorKey(Color(245, 0, 245), Color(255, 10, 255));
 	graphics.DrawImage(&pImg, Rect(Pos.x, Pos.y, w/4, h/8), 0, 0, w, h, UnitPixel, &imgAttr);
+
+	set_Width(w / 4);
+	set_Height(h / 8);
+
 }
 
-void cannon::Shot(Game_Object_Manager& F,int rot)
+void cannon::Shot(Game_Object_Manager& F,int rot, double R)
 {
 
-	double rot_rad = rot * (PI / 180);
+	double rot_rad = rot * (PI / 300);
 
 	if (rot_rad < 0)
 	{
@@ -102,10 +164,10 @@ void cannon::Shot(Game_Object_Manager& F,int rot)
 		rot_rad-= 2 * PI;
 	}
 
-	Rotate(this->Cannon_Port, rot_rad);
+	Rotate(rot_rad);
 	
-
-	F.setVelocity(Cannon_Port.x, Cannon_Port.y);
+	Vector V= R * Rotate(rot_rad);
+	F.setVelocity(V.x, V.y);
 
 
 
@@ -126,6 +188,9 @@ void cannon::Draw(HDC hdc, Image &img, RECT Clientrc,int rot)
 
 	int xPos = (Clientrc.right - Clientrc.left) / 2;
 	int yPos = Clientrc.bottom-100;
+
+
+
 
 	if (pImg)//어디선가 null값을 받아서 실행됬기때문에 이렇게 null을 체크해서 그려줌
 	{
@@ -149,4 +214,8 @@ void cannon::Draw(HDC hdc, Image &img, RECT Clientrc,int rot)
 	
 }
 
+bool Game_Object_Manager::inWindow(RECT Clientrc)
+{
+	return (Clientrc.right - Width > Pos.x) && (Clientrc.left < Pos.x) && (Clientrc.top < Pos.y) && (Clientrc.bottom - Height > Pos.y);
 
+}

@@ -9,6 +9,8 @@
 using namespace Gdiplus;
 
 
+enum shape { Nothing = 0, Arrow, CannonBall, Cannon, Wall };
+
 
 
 
@@ -54,8 +56,6 @@ struct Vector
 	~Vector() {}
 };
 
-enum shape { Nothing=0 , Arrow, CannonBall ,Cannon, Wall};
-
 
 class Game_Object_Manager
 {
@@ -65,9 +65,9 @@ protected:
 	double Width;
 	double Height;
 	int What;
-	
+	bool destroy;
 public:
-	Game_Object_Manager() { Pos={ 0, 0 }, Velocity = { 0, 0 }, Width = 0, Height = 0, What = shape::Nothing;}
+	Game_Object_Manager() { Pos={ 0, 0 }, Velocity = { 0, 0 }, Width = 0, Height = 0, What = shape::Nothing,destroy=false;}
 	Game_Object_Manager(double x, double y, double xV, double yV) :Game_Object_Manager() { Pos.x = x, Pos.y = y, Velocity.x = xV, Velocity.y = yV ; }
 	virtual ~Game_Object_Manager() {};
 	
@@ -89,6 +89,13 @@ public:
 	virtual bool is_collide(Game_Object_Manager& Ob) { return false; };
 	//virtual void collide( Game_Object_Manager& Ob) {};
 	virtual void Draw(HDC hdc, Image &pImg) {};
+	virtual void Lifedown() {} ;
+	void setDestroy(bool T) { destroy = T; }
+	bool getDestroy() { return destroy; }
+
+	bool inWindow(RECT Clientrc);
+
+
 };
 
 class Enemy_Missile : public Game_Object_Manager
@@ -97,13 +104,13 @@ private:
 	int damage;
 	
 public:
-	Enemy_Missile() { damage = 1,What=shape:: Arrow; }
+	Enemy_Missile() { damage = 1, What = shape::Arrow, destroy = false; }
 	virtual ~Enemy_Missile() {}
 
 	
 	void down();
-
-	bool is_collide(Game_Object_Manager& OB, Image* pImg); //面倒咯何
+	
+	bool is_collide(Game_Object_Manager& OB); //面倒咯何
 	void Draw(HDC hdc, Image &pImg);
 };
 
@@ -112,8 +119,8 @@ class Friend_Missile :public Game_Object_Manager
 private:
 	
 public:
-	Friend_Missile() { What = shape::CannonBall; }
-	
+	Friend_Missile() { What = shape::CannonBall, destroy=false; }
+	Friend_Missile(Vector Pos) ;
 	virtual ~Friend_Missile() {}
 
 	void Draw(HDC hdc, Image &pImg);
@@ -126,13 +133,13 @@ private:
 	int Life;
 	
 public:
-	LifeBlock() { Life = 3, What = shape::Wall; }
-	
+	LifeBlock() { Life = 3, What = shape::Wall,destroy=false; }
 	
 
 	//void settingWall(int num, Image& pImg, std::vector<Game_Object_Manager*>& CannonBall_Wall);
 	virtual ~LifeBlock() {}
 
+	void Lifedown();
 
 	void Draw(HDC hdc, Image &pImg);
 
@@ -147,7 +154,7 @@ public:
 	cannon(Vector t) { Cannon_Port = t; }
 	~cannon() {}
 
-	void Shot(Game_Object_Manager& F,int rot);
+	void Shot(Game_Object_Manager& F,int rot,double R);
 	void Draw(HDC hdc, Image &img,RECT Clientrc, int rot);
 };
 
