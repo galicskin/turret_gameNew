@@ -18,14 +18,14 @@ void Gdi_End();
 HBITMAP hBackImage;
 BITMAP bitBack;
 
-HBITMAP hSigongImage;
-BITMAP bitSigong;
-
-HBITMAP hAniImage;
-BITMAP bitAni;
 
 HBITMAP hDoubleBufferImage;
 void doublebuffer(HWND hWnd, HDC hdc);
+void settingWall(int interval, int num, std::vector<Game_Object_Manager*>& CannonBall_Wall);
+void settingarrow(std::vector<Enemy_Missile*>& arrow);
+void settingCannonball(std::vector<Game_Object_Manager*>& T, cannon& turret);
+
+
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -34,12 +34,17 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름�
 
 std::vector<Game_Object_Manager*> CannonBall_Wall;
 
-std::vector<Game_Object_Manager*> arrow;
+std::vector<Enemy_Missile*> arrow;
+
+cannon turret({ 0,-1 });
+
 
 void Update();
 int Run_Frame_Max = 0;
 int Run_Frame_Min = 0;
 int curFrame = Run_Frame_Min;
+
+int rot = 0;
 
 void UpdateFrame(HWND hWnd)
 {
@@ -49,15 +54,39 @@ void UpdateFrame(HWND hWnd)
         curFrame = Run_Frame_Min;
     }
 }
-void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+void CALLBACK TimerProc( HWND hWnd,  UINT uMsg,  UINT idEvent,  DWORD dwTime)
 {
     UpdateFrame(hWnd);
+
+
+    for (auto iter = arrow.begin(); iter != arrow.end(); ++iter)
+    {
+        (*iter)->down();
+    }
+
+    for (auto iter = CannonBall_Wall.begin(); iter != CannonBall_Wall.end(); ++iter)
+    {
+        if ((*iter)->getWhat() == CannonBall)
+        {
+            (*iter)->MOVE();
+        }
+    }
 
     InvalidateRect(hWnd, NULL, FALSE);
 }
 
+void CALLBACK CreateArrow(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+ 
+     settingarrow(arrow);
 
+    InvalidateRect(hWnd, NULL, FALSE);
+}
+void CALLBACK RotateCannon(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
 
+    InvalidateRect(hWnd, NULL, FALSE);
+}
 
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
@@ -118,7 +147,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                 DispatchMessage(&msg);
             }
         }
-        else
+        //else
         {
             Update();
         }
@@ -206,30 +235,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
     {
         
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_LOGIN_BOX), hWnd, LoginMenu);
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_LOGIN_BOX), hWnd, (DLGPROC)LoginMenu);  
+           Image temp((WCHAR*)L"images/rectangle.png");       
 
-            Image* temp=nullptr;
-           // temp= Image::FromFile((WCHAR*)L"images/정사각형.png");
+           settingWall(1,14, CannonBall_Wall);//간격크기,갯수
 
-            //Image* cannon((WCHAR*)L"images/cannon.png");
-            //Image* cannonBall((WCHAR*)L"images/검은원.png");
-            //Image* Arrows((WCHAR*)L"images/적 미사일.png");
-            //Image* block((WCHAR*)L"images/정사각형.png");
-
-            for (int i = 0; i < 5; ++i)
-            {
-               temp = Image::FromFile((WCHAR*)L"images/정사각형.png");
-               Game_Object_Manager* wall=nullptr;
-               wall = new LifeBlock;
-               
-               wall->setPos(100 + 100*i, 100 );
-               CannonBall_Wall.push_back(wall);
-            }
-
-            cannon turret({ 0,-1 });
+            
 
 
-        SetTimer(hWnd, 1, 100, TimerProc);
+        SetTimer(hWnd, 1, 10, (TIMERPROC)TimerProc);
+        SetTimer(hWnd, 2, 1500, (TIMERPROC)CreateArrow);
+        
+
     }
     case WM_COMMAND:
         {
@@ -248,9 +265,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
-
-
-
 
     case WM_PAINT:
         {
@@ -285,6 +299,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         KillTimer(hWnd,1);
+        KillTimer(hWnd, 2);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -314,8 +329,9 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void Update()
 {
-    DWORD newTime = GetTickCount();
+    DWORD newTime = GetTickCount64();
     static DWORD oldTime = newTime;
+
     if (newTime - oldTime < 100)
     {
         return;
@@ -325,11 +341,11 @@ void Update()
 
     if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
     {
-
+        rot += 10;
     }
     if (GetAsyncKeyState(VK_LEFT) & 0x8000)
     {
-
+        rot -= 10;
     }
     if (GetAsyncKeyState(VK_UP) & 0x8000)
     {
@@ -339,7 +355,12 @@ void Update()
     {
 
     }
+    if (GetAsyncKeyState(VK_SPACE))
+    {
 
+        settingCannonball(CannonBall_Wall, turret);
+        
+    }
 
 }
 
@@ -363,6 +384,9 @@ void Gdi_End()
 void doublebuffer(HWND hWnd, HDC hdc)
 {
    
+    hBackImage = (HBITMAP)LoadImage(NULL, TEXT("images/background11.bmp"),
+        IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+    GetObject(hBackImage, sizeof(BITMAP), &bitBack);
 
     HDC hMemDC;  //화면과 같은 형태의 메모리
     HBITMAP hOldBitmap; //이미지 라고 생각하면 편함
@@ -370,19 +394,104 @@ void doublebuffer(HWND hWnd, HDC hdc)
     HDC hMemDC2;
     HBITMAP hOldBitmap2;
 
+
+
+
     hMemDC = CreateCompatibleDC(hdc); //hdc메모리 생성(기존)
-    Graphics graphics(hMemDC);
-
-
+    if (hDoubleBufferImage == NULL)  //hdc 로 부터 비트맵 이미지 제작(도화지)
+    {
+        hDoubleBufferImage = CreateCompatibleBitmap(hdc, Clientrc.right, Clientrc.bottom);
+    }
+    hOldBitmap = (HBITMAP)SelectObject(hMemDC, hDoubleBufferImage);   // DC라는 화면(메모리)에 도화지를 넣음
 
 
     //for background
 
     hMemDC2 = CreateCompatibleDC(hMemDC);  //기존 DC에서 DC2(hdc메모리) 생성 ==(도화지 생성)
-    Graphics graphics2(hMemDC2);
+    hOldBitmap2 = (HBITMAP)SelectObject(hMemDC2, hBackImage);  //위에서 DC2로 부터 비트맵2 생성 ==((수지)그림을 DC2에 그려줌, 그걸 올드비트맵2라고 저장)
+    int bx = bitBack.bmWidth;
+    int by = bitBack.bmHeight;
 
-   
+    StretchBlt(hMemDC, 0, 0, Clientrc.right, Clientrc.bottom, hMemDC2, 0, 0, bx, by, SRCCOPY);  //DC의 화면에 DC2가 있는 화면을 그려줌==(현재 DC2에 있는 화면을  기존 DC에 옮겨줌)
+    
+    SelectObject(hMemDC2, hOldBitmap);   //DC2 지움
+    DeleteDC(hMemDC2);
 
+    Image wall_img((WCHAR*)L"images/rectangle.png");
+
+    for (auto iter = CannonBall_Wall.begin(); iter != CannonBall_Wall.end(); ++iter)
+    {
+        (*iter)->Draw(hMemDC, wall_img);
+    }
+
+    Image arrow_img((WCHAR*)L"images/적 미사일.png");
+    for (auto iter = arrow.begin(); iter != arrow.end(); ++iter)
+    {
+        (*iter)->Draw(hMemDC, arrow_img);
+    }
+
+    Image cannon_img((WCHAR*)L"images/cannon.png");
+    turret.Draw(hMemDC, cannon_img, Clientrc,rot);
+
+
+    BitBlt(hdc, 0, 0, Clientrc.right, Clientrc.bottom,
+        hMemDC, 0, 0, SRCCOPY);  //현재 그려진 DC를 모니터(hdc)에 그려줌  -> 그리는 단계가 사라지고 바로 보여줌..
+
+    std::wstring rotation = std::to_wstring(rot);
+
+    TextOut(hdc, 300, 300, rotation.c_str(), (int)rotation.size() );
+
+
+    SelectObject(hMemDC, hOldBitmap);  //DC해제
+    DeleteDC(hMemDC);
+
+
+
+   // BitBlt(hdc, 0, 0, Clientrc.right, Clientrc.bottom,
+       // hMemDC, 0, 0, SRCCOPY);
 
 }
 
+void settingWall( int interval, int num, std::vector<Game_Object_Manager*>& CannonBall_Wall )
+{
+   
+    for (int i = 0; i < num; ++i)
+    {
+        Game_Object_Manager* wall = nullptr;
+        wall = new LifeBlock;
+        wall->setPos(100 + (80+interval) * i, 500);
+
+        CannonBall_Wall.push_back(wall);
+    }
+
+    
+}
+
+void settingarrow(std::vector<Enemy_Missile*>& arrow)
+{
+    
+    srand(time(NULL));
+
+    Enemy_Missile* arrowR = nullptr;
+    arrowR = new Enemy_Missile;
+
+    int cases = rand() % 30;
+
+    
+    arrowR->setPos(120 + cases*40, 100);
+
+
+    arrowR->setVelocity(0, 5);
+
+    arrow.push_back(arrowR);
+}
+
+void settingCannonball(std::vector<Game_Object_Manager*>& T,cannon &turret)
+{
+    Game_Object_Manager* ball = nullptr;
+    ball = new Friend_Missile;
+    
+    turret.Shot((*ball),rot);
+    
+    T.push_back(ball);
+}

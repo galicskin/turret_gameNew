@@ -2,7 +2,7 @@
 
 using namespace std;
 
-BOOL CALLBACK LoginMenu(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK LoginMenu( HWND hWnd,  UINT iMsg,  WPARAM wParam,  LPARAM lParam)
 {
    
     UNREFERENCED_PARAMETER(lParam);

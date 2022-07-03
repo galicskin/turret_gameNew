@@ -148,7 +148,9 @@
     <ClInclude Include="InGameWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="turret_game.cpp" />
+    <ClCompile Include="turret_game.cpp">
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ConformanceMode>
+    </ClCompile>
     <ClCompile Include="StartMenu.cpp" />
     <ClCompile Include="CloseMenu.cpp" />
     <ClCompile Include="InGameWindow.cpp" />

@@ -3,6 +3,7 @@
 #include "framework.h"
 #include <objidl.h>
 #include <gdiplus.h>
+#include <vector>
 
 #pragma comment(lib,"Gdiplus.lib")
 using namespace Gdiplus;
@@ -24,9 +25,6 @@ struct Vector
 		return Vector(x - G.x, y - G.y);
 	}
 
-
-
-
 	Vector operator*(double G) const //스칼라 곱하기
 	{
 		return Vector(x * G, y * G);
@@ -36,12 +34,11 @@ struct Vector
 		return Vector(G.x * T, G.y * T);
 	}
 
-
-
 	double operator*(const Vector& G) const //내적
 	{
 		return (G.x * x + G.y * y);
 	}
+
 
 	double scalar()
 	{
@@ -79,11 +76,14 @@ public:
 	Vector getVelocity() const { return Velocity; }
 	void setVelocity(double x, double y) { Velocity.x = x, Velocity.y = y;}
 
+
 	double get_Width()const { return Width; }
 	void set_Width(double W) { Width = W; }
 	double get_Height() const { return Height; }
 	void set_Height(double H) { Height = H; }
 	int getWhat()const { return What; }
+
+	void MOVE() { setPos(getPos().x + getVelocity().x, getPos().y + getVelocity().y); }
 
 	double get_VelocitySize()const { return sqrt(pow(Velocity.x, 2) + pow(Velocity.y, 2)); } ;
 	virtual bool is_collide(Game_Object_Manager& Ob) { return false; };
@@ -101,9 +101,9 @@ public:
 	virtual ~Enemy_Missile() {}
 
 	
+	void down();
 
 	bool is_collide(Game_Object_Manager& OB, Image* pImg); //충돌여부
-	
 	void Draw(HDC hdc, Image &pImg);
 };
 
@@ -124,10 +124,13 @@ class LifeBlock :public Game_Object_Manager
 {
 private:
 	int Life;
+	
 public:
 	LifeBlock() { Life = 3, What = shape::Wall; }
 	
 	
+
+	//void settingWall(int num, Image& pImg, std::vector<Game_Object_Manager*>& CannonBall_Wall);
 	virtual ~LifeBlock() {}
 
 
@@ -144,10 +147,10 @@ public:
 	cannon(Vector t) { Cannon_Port = t; }
 	~cannon() {}
 
-	void Shot(Friend_Missile& F);
-	void Draw(HDC hdc, Image &img,RECT Clientrc);
+	void Shot(Game_Object_Manager& F,int rot);
+	void Draw(HDC hdc, Image &img,RECT Clientrc, int rot);
 };
 
-//다른 gdi 함수
+
 
 
