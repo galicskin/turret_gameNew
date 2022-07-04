@@ -50,6 +50,7 @@ clock_t start, end;
 int rot = 0;
 RECT Clientrc;
 
+//프레임
 void UpdateFrame(HWND hWnd)
 {
     curFrame++;
@@ -58,6 +59,8 @@ void UpdateFrame(HWND hWnd)
         curFrame = Run_Frame_Min;
     }
 }
+
+//프레임 업데이트, 각 물체들의 움직임
 void CALLBACK TimerProc( HWND hWnd,  UINT uMsg,  UINT idEvent,  DWORD dwTime)
 {
     UpdateFrame(hWnd);
@@ -83,7 +86,7 @@ void CALLBACK TimerProc( HWND hWnd,  UINT uMsg,  UINT idEvent,  DWORD dwTime)
 
     InvalidateRect(hWnd, NULL, FALSE);
 }
-
+//일정 시간마다 적 미사일 생성
 void CALLBACK CreateArrow(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 {
  
@@ -92,6 +95,7 @@ void CALLBACK CreateArrow(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
     
     InvalidateRect(hWnd, NULL, FALSE);
 }
+//매 시간마다 충돌체크
 void CALLBACK collide(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 {
     
@@ -118,20 +122,24 @@ void CALLBACK collide(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
                         {
                             (*iter1)->setDestroy(true);
                             (*iter2)->setDestroy(true);
+                            //점수+ 해주고 데이터 저장
                             break;
                         }
 
                     }
                 }
                 else
-                {
+                {   
                     (*iter2)->setDestroy(true);
+
+
                 }
             
             }
         }
         else
         {
+            //적 미사일이 벽을 뚫고 아래에 닿음 -> 랭크화면
             (*iter1)->setDestroy(true);
 
         }
@@ -331,19 +339,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             doublebuffer(hWnd, hdc);
 
-
-
-
-
-            /*
-            Image temp((WCHAR*)L"images/정사각형.png");
-          
-            for (auto iter = CannonBall_Wall.begin(); iter != CannonBall_Wall.end(); ++iter)
-            {
-                (*iter)->Draw(hdc, temp);
-            }
-
-            */
               
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 
@@ -423,7 +418,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return (INT_PTR)FALSE;
 }
-
+//업데이트마다 입력받기
 void Update()
 {
     DWORD newTime = GetTickCount64();
@@ -482,10 +477,10 @@ void Gdi_End()
 {
     GdiplusShutdown(g_GdiToken);
 }
-
+//더블버퍼
 void doublebuffer(HWND hWnd, HDC hdc)
 {
-   
+   //배경 
     hBackImage = (HBITMAP)LoadImage(NULL, TEXT("images/background11.bmp"),
         IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
     GetObject(hBackImage, sizeof(BITMAP), &bitBack);
@@ -561,7 +556,7 @@ void doublebuffer(HWND hWnd, HDC hdc)
        // hMemDC, 0, 0, SRCCOPY);
 
 }
-
+//벽 만들기
 void settingWall( int interval, int num, std::vector<Game_Object_Manager*>& CannonBall_Wall )
 {
    
@@ -576,7 +571,7 @@ void settingWall( int interval, int num, std::vector<Game_Object_Manager*>& Cann
 
     
 }
-
+//적 미사일 만들기
 void settingarrow(std::vector<Enemy_Missile*>& arrow)
 {
     
@@ -595,7 +590,7 @@ void settingarrow(std::vector<Enemy_Missile*>& arrow)
 
     arrow.push_back(arrowR);
 }
-
+//아군총알 만들기
 void settingCannonball(std::vector<Game_Object_Manager*>& T,cannon &turret,double R, RECT Clientrc)
 {
 
