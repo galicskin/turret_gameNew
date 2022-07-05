@@ -232,10 +232,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case IDM_ABOUT:
-                KillTimer(hWnd, 1);
-                KillTimer(hWnd, 2);
-                KillTimer(hWnd, 3);
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_CLOSEMENU), hWnd, (DLGPROC)CloseMenu);
+                //KillTimer(hWnd, 1);
+                //KillTimer(hWnd, 2);
+                //KillTimer(hWnd, 3);
+                //DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_CLOSEMENU), hWnd, (DLGPROC)CloseMenu);
                 //DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
             case IDM_EXIT:
@@ -517,7 +517,7 @@ void settingarrow(std::vector<Enemy_Missile*>& arrow)
     arrowR->setPos(120 + cases*40, 100);
 
 
-    arrowR->setVelocity(0, 30);
+    arrowR->setVelocity(0, 15);
 
     arrow.push_back(arrowR);
 }
@@ -626,7 +626,10 @@ void CALLBACK collide(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
         }
         else
         {
-           
+            KillTimer(hWnd, 1);
+            KillTimer(hWnd, 2);
+            KillTimer(hWnd, 3);
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_CLOSEMENU), hWnd, (DLGPROC)CloseMenu);
             (*iter1)->setDestroy(true);
 
         }

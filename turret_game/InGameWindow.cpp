@@ -50,7 +50,7 @@ bool Enemy_Missile::is_collide(Game_Object_Manager& OB)
 	}
 	case Wall:
 	{
-		if (OB.getPos().x + 80 > Pos.x && OB.getPos().x < Pos.x)
+		if (OB.getPos().x + 81 > Pos.x+ Width / 2 && OB.getPos().x < Pos.x+ Width / 2)
 		{
 			return (OB.getPos().y  < Pos.y+Height);
 		}

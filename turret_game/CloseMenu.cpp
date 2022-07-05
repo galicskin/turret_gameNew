@@ -91,6 +91,7 @@ BOOL CALLBACK CloseMenu(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
         
         Sc = Sc + _T("     ") + current_player.name;
+       
         SetDlgItemText(hWnd, IDC_EDIT_CURRENT, Sc.c_str());
 
 
