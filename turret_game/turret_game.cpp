@@ -232,11 +232,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case IDM_ABOUT:
-                //KillTimer(hWnd, 1);
-                //KillTimer(hWnd, 2);
-                //KillTimer(hWnd, 3);
-                //DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_CLOSEMENU), hWnd, (DLGPROC)CloseMenu);
-                //DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                KillTimer(hWnd, 1);
+                KillTimer(hWnd, 2);
+                KillTimer(hWnd, 3);
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_CLOSEMENU), hWnd, (DLGPROC)CloseMenu);
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);

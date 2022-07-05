@@ -23,10 +23,11 @@
 #define IDC_LOGIN_ERROR_TEXT            1007
 #define IDC_CREATE_ACCOUNT              1008
 #define IDC_EDIT_RANK                   1010
-
 #define IDC_EDIT_CURRENT                1012
 #define IDC_TURRETGAME_CURRENT          1013
 #define IDC_TURRETGAME_RANK             1014
+#define IDC_STATIC_CURRENT              1015
+#define IDC_STATIC_RANK                 1016
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -36,7 +37,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
