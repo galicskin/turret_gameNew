@@ -8,7 +8,7 @@
 #include <vector>
 #include "InGameWindow.h"
 #include <ctime>
-
+#include"CloseMenu.h"
 #define MAX_LOADSTRING 100
 
 using namespace Gdiplus;
@@ -26,6 +26,15 @@ void doublebuffer(HWND hWnd, HDC hdc);
 void settingWall(int interval, int num, std::vector<Game_Object_Manager*>& CannonBall_Wall);
 void settingarrow(std::vector<Enemy_Missile*>& arrow);
 void settingCannonball(std::vector<Game_Object_Manager*>& T, cannon& turret, double R, RECT Clientrc);
+
+
+void UpdateFrame(HWND hWnd);
+void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+void CALLBACK CreateArrow(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+void CALLBACK collide(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+
+
+
 
 
 // 전역 변수:
@@ -50,106 +59,7 @@ clock_t start, end;
 int rot = 0;
 RECT Clientrc;
 
-//프레임
-void UpdateFrame(HWND hWnd)
-{
-    curFrame++;
-    if (curFrame > Run_Frame_Max)
-    {
-        curFrame = Run_Frame_Min;
-    }
-}
-
-//프레임 업데이트, 각 물체들의 움직임
-void CALLBACK TimerProc( HWND hWnd,  UINT uMsg,  UINT idEvent,  DWORD dwTime)
-{
-    UpdateFrame(hWnd);
-
-
-    for (auto iter = arrow.begin(); iter != arrow.end(); ++iter)
-    {
-    
-        (*iter)->down();
-    }
-
-    for (auto iter = CannonBall_Wall.begin(); iter != CannonBall_Wall.end(); ++iter)
-    {
-
-        if ((*iter)->getWhat() == CannonBall)
-        {
-            (*iter)->MOVE();
-        }
-    }
-
-
-
-
-    InvalidateRect(hWnd, NULL, FALSE);
-}
-//일정 시간마다 적 미사일 생성
-void CALLBACK CreateArrow(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
-{
- 
-     settingarrow(arrow);
-
-    
-    InvalidateRect(hWnd, NULL, FALSE);
-}
-//매 시간마다 충돌체크
-void CALLBACK collide(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
-{
-    
-    for (auto iter1 = arrow.begin(); iter1 != arrow.end(); ++iter1)
-    {
-        
-      
-        if ((*iter1)->inWindow(Clientrc))
-        {
-            for (auto iter2 = CannonBall_Wall.begin(); iter2 != CannonBall_Wall.end(); ++iter2)
-            {
-                if ((*iter2)->inWindow(Clientrc))
-                {
-
-                    if ((*iter1)->is_collide(*(*iter2)))
-                    {
-                        if ((*iter2)->getWhat() == Wall)
-                        {
-                            (*iter2)->Lifedown();
-                            (*iter1)->setDestroy(true);
-                            break;
-                        }
-                        else if ((*iter2)->getWhat() == CannonBall)
-                        {
-                            (*iter1)->setDestroy(true);
-                            (*iter2)->setDestroy(true);
-                            //점수+ 해주고 데이터 저장
-                            break;
-                        }
-
-                    }
-                }
-                else
-                {   
-                    (*iter2)->setDestroy(true);
-
-
-                }
-            
-            }
-        }
-        else
-        {
-            //적 미사일이 벽을 뚫고 아래에 닿음 -> 랭크화면
-            (*iter1)->setDestroy(true);
-
-        }
-    }
-
-    
-    
-
-    InvalidateRect(hWnd, NULL, FALSE);
-}
+int Player_score;
 
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
@@ -293,6 +203,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
    // static bool login = false;
     GetClientRect(hWnd, &Clientrc);
+    
+    
     switch (message)
     {
     case WM_CREATE:
@@ -303,7 +215,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
            Image temp((WCHAR*)L"images/rectangle.png");       
 
            settingWall(1,14, CannonBall_Wall);//간격크기,갯수
-
+           Player_score=0;
             
            start = clock();
 
@@ -312,6 +224,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         SetTimer(hWnd, 3, 1, (TIMERPROC)collide);
 
     }
+    break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -319,7 +232,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                KillTimer(hWnd, 1);
+                KillTimer(hWnd, 2);
+                KillTimer(hWnd, 3);
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_CLOSEMENU), hWnd, (DLGPROC)CloseMenu);
+                //DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
@@ -370,6 +287,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
+       
         PostQuitMessage(0);
         KillTimer(hWnd,1);
         KillTimer(hWnd, 2);
@@ -539,12 +457,25 @@ void doublebuffer(HWND hWnd, HDC hdc)
     turret.Draw(hMemDC, cannon_img, Clientrc,rot);
 
 
+    std::wstring Score = std::to_wstring(Player_score);
+    Graphics graphics(hMemDC);
+    // >> : txt
+    SolidBrush brush(Color(255, 255, 0, 0)); //(Color(alpha, R, G, B))
+    FontFamily fontFamily(L"Times New Roman");
+    Font font(&fontFamily, 24, FontStyleRegular, UnitPixel);
+    PointF pointF(10.0f, 20.0f);
+    graphics.DrawString(Score.c_str(), -1, &font, pointF, &brush);
+    // << :
+    
+
     BitBlt(hdc, 0, 0, Clientrc.right, Clientrc.bottom,
         hMemDC, 0, 0, SRCCOPY);  //현재 그려진 DC를 모니터(hdc)에 그려줌  -> 그리는 단계가 사라지고 바로 보여줌..
 
-    std::wstring rotation = std::to_wstring(rot);
 
+
+    std::wstring rotation = std::to_wstring(rot);
     TextOut(hdc, 300, 300, rotation.c_str(), (int)rotation.size() );
+   
 
 
     SelectObject(hMemDC, hOldBitmap);  //DC해제
@@ -586,7 +517,7 @@ void settingarrow(std::vector<Enemy_Missile*>& arrow)
     arrowR->setPos(120 + cases*40, 100);
 
 
-    arrowR->setVelocity(0, 5);
+    arrowR->setVelocity(0, 30);
 
     arrow.push_back(arrowR);
 }
@@ -603,4 +534,106 @@ void settingCannonball(std::vector<Game_Object_Manager*>& T,cannon &turret,doubl
     turret.Shot((*ball),rot, R);
     
     T.push_back(ball);
+}
+
+
+//프레임
+void UpdateFrame(HWND hWnd)
+{
+    curFrame++;
+    if (curFrame > Run_Frame_Max)
+    {
+        curFrame = Run_Frame_Min;
+    }
+}
+
+//프레임 업데이트, 각 물체들의 움직임
+void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+    UpdateFrame(hWnd);
+
+
+    for (auto iter = arrow.begin(); iter != arrow.end(); ++iter)
+    {
+
+        (*iter)->down();
+    }
+
+    for (auto iter = CannonBall_Wall.begin(); iter != CannonBall_Wall.end(); ++iter)
+    {
+
+        if ((*iter)->getWhat() == CannonBall)
+        {
+            (*iter)->MOVE();
+        }
+    }
+
+
+
+
+    InvalidateRect(hWnd, NULL, FALSE);
+}
+//일정 시간마다 적 미사일 생성
+void CALLBACK CreateArrow(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+
+    settingarrow(arrow);
+
+
+    InvalidateRect(hWnd, NULL, FALSE);
+}
+//매 시간마다 충돌체크
+void CALLBACK collide(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+
+    for (auto iter1 = arrow.begin(); iter1 != arrow.end(); ++iter1)
+    {
+
+        if ((*iter1)->inWindow(Clientrc))
+        {
+            for (auto iter2 = CannonBall_Wall.begin(); iter2 != CannonBall_Wall.end(); ++iter2)
+            {
+                if ((*iter2)->inWindow(Clientrc))
+                {
+
+                    if ((*iter1)->is_collide(*(*iter2)))
+                    {
+                        if ((*iter2)->getWhat() == Wall)
+                        {
+                            (*iter2)->Lifedown();
+                            (*iter1)->setDestroy(true);
+                            break;
+                        }
+                        else if ((*iter2)->getWhat() == CannonBall)
+                        {
+                            (*iter1)->setDestroy(true);
+                            (*iter2)->setDestroy(true);
+                            
+                            Player_score+=10;
+                            break;
+                        }
+
+                    }
+                }
+                else
+                {
+                    (*iter2)->setDestroy(true);
+
+
+                }
+
+            }
+        }
+        else
+        {
+           
+            (*iter1)->setDestroy(true);
+
+        }
+    }
+
+
+
+
+    InvalidateRect(hWnd, NULL, FALSE);
 }

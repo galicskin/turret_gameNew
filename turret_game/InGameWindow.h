@@ -4,13 +4,12 @@
 #include <objidl.h>
 #include <gdiplus.h>
 #include <vector>
-
+#include <string>
 #pragma comment(lib,"Gdiplus.lib")
 using namespace Gdiplus;
 
 
 enum shape { Nothing = 0, Arrow, CannonBall, Cannon, Wall };
-
 
 
 

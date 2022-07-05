@@ -1,10 +1,11 @@
 #include "StartMenu.h"
 
 using namespace std;
+TCHAR tmpname[128];
 
 BOOL CALLBACK LoginMenu( HWND hWnd,  UINT iMsg,  WPARAM wParam,  LPARAM lParam)
 {
-   
+    
     UNREFERENCED_PARAMETER(lParam);
     switch (iMsg)
     {
@@ -31,18 +32,9 @@ BOOL CALLBACK LoginMenu( HWND hWnd,  UINT iMsg,  WPARAM wParam,  LPARAM lParam)
         case IDC_LOGIN_BUTTON:
         {
             
-            TCHAR ID[128];
-            GetDlgItemText(hWnd, IDC_LOGIN_INFO, ID, 128);
-            
-            wofstream foutID;
-            foutID.open("UserIdInfo.txt", ios_base::out|ios_base::app|ios_base::binary);
+           
+            GetDlgItemText(hWnd, IDC_LOGIN_INFO, tmpname, 128);
       
-
-            if (foutID.is_open())
-            {
-                foutID.write(ID, sizeof(ID));
-            }
-            foutID.close();
 
             EndDialog(hWnd, LOWORD(wParam));
             return TRUE;

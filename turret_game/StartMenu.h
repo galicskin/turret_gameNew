@@ -5,6 +5,8 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include"InGameWindow.h"
+
 struct UserInfo
 {
 	WCHAR ID[128], PASSWORD[128];
